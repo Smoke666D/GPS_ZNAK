@@ -33,10 +33,7 @@
 const unsigned char * PMTR_ACK="$PMTK001";
 static const char* hex_digits="0123456789ABCDEF";
 
-#define RESET_STATE     0
-#define INIT_RATE_STATE 1
-#define INIT_OUT_STATE  2
-#define GET_DATA_STATE  3
+
 
 static uint8_t GPS_FSM =RESET_STATE;
 static unsigned char  message_buffer[200];
@@ -86,8 +83,8 @@ void GPS_Task(void const * argument)
 			   {
 			             if (Parse_RMC_Command(message_buffer,&CurLat,&CurLong,&GroundSpeed,&system_time) == VALID)
 			             {
-			                // if (system_time.second ==0)
-			                //  	   B_ON = 1;        // ��������� ����� ������� �������������
+			                 if (system_time.second ==0)	 SetB_ON();
+
 			             }
 			   }
 			break;

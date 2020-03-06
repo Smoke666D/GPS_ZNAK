@@ -19,6 +19,12 @@
 #define RESET_GPS_ON HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET)
 #define RESET_GPS_OFF HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET)
 
+#define RESET_STATE     0
+#define INIT_RATE_STATE 1
+#define INIT_OUT_STATE  2
+#define GET_DATA_STATE  3
+
+
 typedef enum
 {
     API_SET_NMEA_OUTPUT,

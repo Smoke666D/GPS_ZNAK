@@ -205,25 +205,11 @@ void EXTI2_3_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI2_3_IRQn 0 */
   if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_3) != RESET)
-	  {
-		  Ltime_4msl=0;
-		  Inccounter_PPS();
-		  SetPPS_stat();
-		  if (GetB_ON())
-		  {
-			  Setcounter_PPS(10);
-			  ResetB_ON();
-		  }
-		  if( Getcounter_PPS() >= GetTic_PPS())
-		  {
-		      Setcounter_PPS(0);
-		      SetSmenaPPS();
-		      SetPPS_OK();
-		  };
-            __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_3);
-
-	  }
-          
+  {
+	Ltime_4msl=0;
+    vmainPPSSet();
+    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_3);
+  }
   /* USER CODE END EXTI2_3_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
   /* USER CODE BEGIN EXTI2_3_IRQn 1 */

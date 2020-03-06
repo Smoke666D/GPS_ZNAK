@@ -79,15 +79,12 @@ void Error_Handler(void);
 #define VEdge            19
 #define VEdgel           17  
 void SetSmenaPPS();
-void Inccounter_PPS();
-unsigned char Getcounter_PPS();
-void Setcounter_PPS(unsigned char data);
-void SetPPS_OK();
-void SetPPS_stat();
 unsigned char GetTic_PPS();
+void SetB_ON();
 unsigned char GetB_ON();
-void ResetB_ON();
 
+void vManiTsk();
+void vmainPPSSet();
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

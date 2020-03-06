@@ -76,12 +76,12 @@
 /* USER CODE BEGIN PV */
 unsigned char counter_PPS=0,
               Tic_PPS=2;
-unsigned char smenaPPS=0,
-    Temp_bit=0,
-    Mig_ON_nOFF=0,
-    B_ON=0,
-    PPS_OK=0,
-    PPS_stat = 0;
+static unsigned char smenaPPS=0,
+  Temp_bit=0,
+   Mig_ON_nOFF=0;
+   B_ON=0,
+   PPS_OK=0,
+   PPS_stat = 0;
 
 /* USER CODE END PV */
 
@@ -95,6 +95,26 @@ static void MX_NVIC_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+
+void vmainPPSSet()
+{
+
+	counter_PPS++;
+	PPS_stat = 1;
+	if (GetB_ON())
+	{
+	   counter_PPS=10;
+	   B_ON=0;
+    }
+	if( counter_PPS >= Tic_PPS)
+	{
+	   counter_PPS=0;
+	   SetSmenaPPS();
+	   PPS_OK=1;
+    }
+}
+
 unsigned char GetTic_PPS()
 {
 	return Tic_PPS;
@@ -103,33 +123,28 @@ unsigned char GetB_ON()
 {
 	return B_ON;
 }
-void ResetB_ON()
+
+void SetB_ON()
 {
-	B_ON=0;
+	B_ON=1;
+
 }
 void SetSmenaPPS()
 {
 	smenaPPS=1;
 }
-void Inccounter_PPS()
+
+
+
+
+void vManiTsk()
 {
-	counter_PPS++;
-}
-unsigned char Getcounter_PPS()
-{
-	return counter_PPS;
-}
-void Setcounter_PPS(unsigned char data)
-{
-	counter_PPS = data;
-}
-void SetPPS_OK()
-{
-	PPS_OK=1;
-}
-void SetPPS_stat()
-{
-	PPS_stat = 1;
+	SetPWM4(100);
+    SetPWM3(0);
+	osDelay(1000);
+	SetPWM4(0);
+	SetPWM3(100);
+	osDelay(1000);
 }
 /* USER CODE END 0 */
 
@@ -143,13 +158,10 @@ int main(void)
     unsigned char STATE=0;
 	  unsigned char _jarcostjB_mas[14]= {0,0,0,0,0,0,0,    B_br,B_br,B_br,B_br,B_br,B_br,B_br};   // REG_3
 	  unsigned char _jarcostjW_mas[14]= {W_br,W_br,W_br,W_br,W_br,W_br,W_br,          W_br0,W_br0,W_br0,W_br0,W_br0,W_br0,W_br0};   // REG_6
-	  unsigned char  message_buffer[200];
 	  unsigned char temp_mcusr,step;
 	  unsigned int Temp_T1,Temp_T2;
 	  unsigned char Time_ON=0;
 
-
-          unsigned char GPS_STATE=2;
   /* USER CODE END 1 */
   
 
