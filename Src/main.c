@@ -40,9 +40,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "adc.h"
-#include "dac.h"
-#include "i2c.h"
+#include "cmsis_os.h"
 #include "iwdg.h"
 #include "tim.h"
 #include "usart.h"
@@ -90,6 +88,7 @@ unsigned char smenaPPS=0,
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void MX_FREERTOS_Init(void);
 static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
 
@@ -156,6 +155,7 @@ int main(void)
 	  double CurLat, CurLong = 0;
           unsigned char GPS_STATE=2;
   /* USER CODE END 1 */
+  
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -175,11 +175,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_ADC_Init();
-  MX_DAC1_Init();
   MX_TIM3_Init();
-  MX_I2C1_Init();
-  MX_USART2_UART_Init();
   MX_USART1_UART_Init();
   MX_TIM6_Init();
   MX_TIM2_Init();
@@ -222,15 +218,21 @@ SetPWM1(0);
   SetTimer4msl(0);            // Сбрасываем время с события последненго перемещения по массиву интенсивностей
 
   /* USER CODE END 2 */
+ 
+  /* Call init function for freertos objects (in freertos.c) */
+  MX_FREERTOS_Init(); 
+ 
+  /* Start scheduler */
+  osKernelStart();
+ 
+  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-     RestWDT();
-    if (GPS_STATE==2)
-    {
-      if(smenaPPS)          // Прошло TIC_PPS импульсов PPS
+    RestWDT();
+    if(smenaPPS)          // Прошло TIC_PPS импульсов PPS
       {
         Mig_ON_nOFF=0;      // Сброс флага на переход к анализу этапа горения
         smenaPPS=0;         // Сброс флага
@@ -274,11 +276,8 @@ SetPWM1(0);
               if(step <= 13)   // Рабочий цикл в процессе
               {
                   SetPWM4(_jarcostjB_mas[step]);  // Изменеие интенсивности                 
-                  SetPWM3(_jarcostjW_mas[step]);  // Изменеие интенсивности
-              //    SetPWM2(_jarcostj1_mas[step]);
-                //  SetPWM1(_jarcostj2_mas[step]);
-
-                step++;
+                  SetPWM3(_jarcostjW_mas[step]);  // Изменеие интенсивности             
+                  step++;
               }
               else             // Рабочий цикл закончен
               {
@@ -301,10 +300,7 @@ SetPWM1(0);
               if(step <= 13)   // Рабочий цикл в процессе
               {
             	SetPWM4(_jarcostjB_mas[13-step]);  // Изменеие интенсивности            	
-            	SetPWM3(_jarcostjW_mas[13-step]);  // Изменеие интенсивности
-            //	SetPWM2(_jarcostj1_mas[13-step]);
-            //	SetPWM1(_jarcostj2_mas[13-step]);
-
+            	SetPWM3(_jarcostjW_mas[13-step]);  // Изменеие интенсивности          
                 step++;
               }
               else             // Рабочий цикл закончен
@@ -331,17 +327,13 @@ SetPWM1(0);
                         	   B_ON = 1;        // Установка флага фазовой синхронизации
                                  // if (ValidStat) SinchStat = 1;
                                  // else           SinchStat = 0;
-
-
                         }
                         break;
-
                    }
                  }
 
     }
-    else
-    {
+    /*
       RestWDT();
         if ((GetDIN_1() ==1) && (GetDIN_2() ==0) && (GetDIN_3()==0))  //Красный цвет, зажигаем только есть есть сигнал зеленог, а остальные пустые
        {    
@@ -397,7 +389,7 @@ SetPWM1(0);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+ // }*/
   /* USER CODE END 3 */
 }
 
@@ -411,15 +403,13 @@ void SystemClock_Config(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
-  /**Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB busses clocks 
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSI14
-                              |RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI
+                              |RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSI14State = RCC_HSI14_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.HSI14CalibrationValue = 16;
   RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
@@ -429,7 +419,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /**Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB busses clocks 
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1;
@@ -441,9 +431,8 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_I2C1;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1;
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_HSI;
-  PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_SYSCLK;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -457,22 +446,13 @@ void SystemClock_Config(void)
 static void MX_NVIC_Init(void)
 {
   /* EXTI2_3_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(EXTI2_3_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(EXTI2_3_IRQn, 3, 0);
   HAL_NVIC_EnableIRQ(EXTI2_3_IRQn);
-  /* EXTI4_15_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(EXTI4_15_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(EXTI4_15_IRQn);
   /* TIM3_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(TIM3_IRQn, 3, 0);
   HAL_NVIC_EnableIRQ(TIM3_IRQn);
-  /* I2C1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(I2C1_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(I2C1_IRQn);
-  /* USART2_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(USART2_IRQn);
   /* USART1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(USART1_IRQn, 3, 0);
   HAL_NVIC_EnableIRQ(USART1_IRQn);
 }
 

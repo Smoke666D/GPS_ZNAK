@@ -10,14 +10,15 @@ RM := rm -rf
 -include sources.mk
 -include startup/subdir.mk
 -include Src/subdir.mk
+-include Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/subdir.mk
+-include Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM0/subdir.mk
+-include Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/subdir.mk
+-include Middlewares/Third_Party/FreeRTOS/Source/subdir.mk
 -include Drivers/STM32F0xx_HAL_Driver/Src/subdir.mk
 -include subdir.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(strip $(S_UPPER_DEPS)),)
--include $(S_UPPER_DEPS)
-endif
 ifneq ($(strip $(C_DEPS)),)
 -include $(C_DEPS)
 endif
@@ -26,31 +27,51 @@ endif
 -include ../makefile.defs
 
 # Add inputs and outputs from these tool invocations to the build variables 
+EXECUTABLES += \
+ZNAK_GPS_UP.elf \
+
+SIZE_OUTPUT += \
+default.size.stdout \
+
+OBJDUMP_LIST += \
+ZNAK_GPS_UP.list \
+
+OBJCOPY_HEX += \
+ZNAK_GPS_UP.hex \
+
 
 # All Target
-all: ZNAK_GPS_UP.elf
+all: ZNAK_GPS_UP.elf secondary-outputs
 
 # Tool invocations
 ZNAK_GPS_UP.elf: $(OBJS) $(USER_OBJS) ../STM32F051K8Ux_FLASH.ld
-	@echo 'Building target: $@'
-	@echo 'Invoking: MCU GCC Linker'
-	arm-none-eabi-gcc -mcpu=cortex-m0 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -T"../STM32F051K8Ux_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "ZNAK_GPS_UP.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
+	arm-none-eabi-gcc -o "ZNAK_GPS_UP.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0 -T"../STM32F051K8Ux_FLASH.ld" --specs=nosys.specs -Wl,-Map="ZNAK_GPS_UP.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
-	$(MAKE) --no-print-directory post-build
+
+default.size.stdout: $(EXECUTABLES)
+	arm-none-eabi-size  $(EXECUTABLES)
+	@echo 'Finished building: $@'
+	@echo ' '
+
+ZNAK_GPS_UP.list: $(EXECUTABLES)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "ZNAK_GPS_UP.list"
+	@echo 'Finished building: $@'
+	@echo ' '
+
+ZNAK_GPS_UP.hex: $(EXECUTABLES)
+	arm-none-eabi-objcopy  -O ihex $(EXECUTABLES) "ZNAK_GPS_UP.hex"
+	@echo 'Finished building: $@'
+	@echo ' '
 
 # Other Targets
 clean:
 	-$(RM) *
 	-@echo ' '
 
-post-build:
-	-@echo 'Generating hex and Printing size information:'
-	arm-none-eabi-objcopy -O ihex "ZNAK_GPS_UP.elf" "ZNAK_GPS_UP.hex"
-	arm-none-eabi-size "ZNAK_GPS_UP.elf"
-	-@echo ' '
+secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_HEX)
 
 .PHONY: all clean dependents
-.SECONDARY: post-build
+.SECONDARY:
 
 -include ../makefile.targets

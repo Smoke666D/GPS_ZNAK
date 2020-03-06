@@ -64,16 +64,11 @@
 /* Exported functions prototypes ---------------------------------------------*/
 void NMI_Handler(void);
 void HardFault_Handler(void);
-void SVC_Handler(void);
-void PendSV_Handler(void);
 void SysTick_Handler(void);
 void EXTI2_3_IRQHandler(void);
-void EXTI4_15_IRQHandler(void);
 void TIM3_IRQHandler(void);
 void TIM6_DAC_IRQHandler(void);
-void I2C1_IRQHandler(void);
 void USART1_IRQHandler(void);
-void USART2_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 unsigned char GetDIN_1();
 unsigned char GetDIN_2();

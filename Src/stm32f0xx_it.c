@@ -36,6 +36,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f0xx_it.h"
+#include "FreeRTOS.h"
+#include "task.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "usart.h"
@@ -87,12 +89,9 @@ unsigned char DIN3_RISE=1;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern DAC_HandleTypeDef hdac1;
-extern I2C_HandleTypeDef hi2c1;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim6;
 extern UART_HandleTypeDef huart1;
-extern UART_HandleTypeDef huart2;
 /* USER CODE BEGIN EV */
 unsigned char GetDIN_1()
 {
@@ -191,32 +190,6 @@ void HardFault_Handler(void)
 }
 
 /**
-  * @brief This function handles System service call via SWI instruction.
-  */
-void SVC_Handler(void)
-{
-  /* USER CODE BEGIN SVC_IRQn 0 */
-
-  /* USER CODE END SVC_IRQn 0 */
-  /* USER CODE BEGIN SVC_IRQn 1 */
-
-  /* USER CODE END SVC_IRQn 1 */
-}
-
-/**
-  * @brief This function handles Pendable request for system service.
-  */
-void PendSV_Handler(void)
-{
-  /* USER CODE BEGIN PendSV_IRQn 0 */
-
-  /* USER CODE END PendSV_IRQn 0 */
-  /* USER CODE BEGIN PendSV_IRQn 1 */
-
-  /* USER CODE END PendSV_IRQn 1 */
-}
-
-/**
   * @brief This function handles System tick timer.
   */
 void SysTick_Handler(void)
@@ -225,6 +198,14 @@ void SysTick_Handler(void)
 
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
+#if (INCLUDE_xTaskGetSchedulerState == 1 )
+  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
+  {
+#endif /* INCLUDE_xTaskGetSchedulerState */
+  xPortSysTickHandler();
+#if (INCLUDE_xTaskGetSchedulerState == 1 )
+  }
+#endif /* INCLUDE_xTaskGetSchedulerState */
   /* USER CODE BEGIN SysTick_IRQn 1 */
 
   /* USER CODE END SysTick_IRQn 1 */
@@ -268,104 +249,6 @@ void EXTI2_3_IRQHandler(void)
   /* USER CODE BEGIN EXTI2_3_IRQn 1 */
 
   /* USER CODE END EXTI2_3_IRQn 1 */
-}
-
-/**
-  * @brief This function handles EXTI line 4 to 15 interrupts.
-  */
-void EXTI4_15_IRQHandler(void)
-{
-  /* USER CODE BEGIN EXTI4_15_IRQn 0 */
-  /* Обработка прирывания по приходу сигнала PPS от модуля GPS
-   *
-   *
-   */
-
-  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET)
-  {
-	   if (DIN1_RISE==0)   //Если прирывание по falling edge
-            {
-                DIN1_RISE = 1;
-                EXTI->FTSR|=GPIO_PIN_8;
-                EXTI->RTSR&=~GPIO_PIN_8;                
-                Time_2_2KHz_1 = 0;       //Сброс счетчика
-                
-                
-          }              
-          else
-          {
-              DIN1_RISE = 0;   
-              EXTI->IMR &= (~GPIO_PIN_8);              
-              EXTI->RTSR|=GPIO_PIN_8;
-              EXTI->FTSR&=~GPIO_PIN_8;
-              EXTI->IMR |= GPIO_PIN_8;
-              if (Time_2_2KHz_1 >= VEdge  ) 
-                DIN_1 = 1;
-              if (Time_2_2KHz_1 <= VEdgel   )
-                DIN_1 = 0;   
-        }
-
-          __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
-  }
-  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12) != RESET)
-  {
-	  if (DIN2_RISE==0)   //Если прирывание по falling edge
-          {
-                DIN2_RISE = 1;
-                EXTI->FTSR|=GPIO_PIN_12;
-                EXTI->RTSR&=~GPIO_PIN_12;                
-                Time_2_2KHz_2 = 0;       //Сброс счетчика
-                
-                
-          }              
-          else
-          {
-              DIN2_RISE = 0;   
-              EXTI->IMR &= (~GPIO_PIN_12);              
-              EXTI->RTSR|=GPIO_PIN_12;
-              EXTI->FTSR&=~GPIO_PIN_12;
-              EXTI->IMR |= GPIO_PIN_12;
-              if (Time_2_2KHz_2 >= VEdge  ) DIN_2 = 1;
-              if (Time_2_2KHz_2 <= VEdgel   ) DIN_2 = 0;   
-        }
-          __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_12);
-  }
-  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_15) != RESET)
-  {
-	   if (DIN1_RISE==3)   //Если прирывание по falling edge
-            {
-                DIN3_RISE = 1;
-                EXTI->FTSR|=GPIO_PIN_15;
-                EXTI->RTSR&=~GPIO_PIN_15;                
-                Time_2_2KHz_3 = 0;       //Сброс счетчика
-                
-                
-          }              
-          else
-          {
-              DIN3_RISE = 0;   
-              EXTI->IMR &= (~GPIO_PIN_15);              
-              EXTI->RTSR|=GPIO_PIN_15;
-              EXTI->FTSR&=~GPIO_PIN_15;
-              EXTI->IMR |= GPIO_PIN_15;
-              if (Time_2_2KHz_3 >= VEdge  ) DIN_3 = 1;
-              if (Time_2_2KHz_3 <= VEdgel   ) DIN_3 = 0;   
-        }
-          __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_15);
-  }
-  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_4) != RESET)
-  {
-
-  }
-
-
-  /* USER CODE END EXTI4_15_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_12);
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_15);
-  /* USER CODE BEGIN EXTI4_15_IRQn 1 */
-
-  /* USER CODE END EXTI4_15_IRQn 1 */
 }
 
 /**
@@ -413,28 +296,9 @@ void TIM6_DAC_IRQHandler(void)
 
   /* USER CODE END TIM6_DAC_IRQn 0 */
   HAL_TIM_IRQHandler(&htim6);
-  HAL_DAC_IRQHandler(&hdac1);
   /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
 
   /* USER CODE END TIM6_DAC_IRQn 1 */
-}
-
-/**
-  * @brief This function handles I2C1 event global interrupt / I2C1 wake-up interrupt through EXTI line 23.
-  */
-void I2C1_IRQHandler(void)
-{
-  /* USER CODE BEGIN I2C1_IRQn 0 */
-
-  /* USER CODE END I2C1_IRQn 0 */
-  if (hi2c1.Instance->ISR & (I2C_FLAG_BERR | I2C_FLAG_ARLO | I2C_FLAG_OVR)) {
-    HAL_I2C_ER_IRQHandler(&hi2c1);
-  } else {
-    HAL_I2C_EV_IRQHandler(&hi2c1);
-  }
-  /* USER CODE BEGIN I2C1_IRQn 1 */
-
-  /* USER CODE END I2C1_IRQn 1 */
 }
 
 /**
@@ -451,20 +315,6 @@ void USART1_IRQHandler(void)
   /* USER CODE BEGIN USART1_IRQn 1 */
 
   /* USER CODE END USART1_IRQn 1 */
-}
-
-/**
-  * @brief This function handles USART2 global interrupt.
-  */
-void USART2_IRQHandler(void)
-{
-  /* USER CODE BEGIN USART2_IRQn 0 */
-
-  /* USER CODE END USART2_IRQn 0 */
-  HAL_UART_IRQHandler(&huart2);
-  /* USER CODE BEGIN USART2_IRQn 1 */
-
-  /* USER CODE END USART2_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
