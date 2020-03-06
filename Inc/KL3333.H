@@ -16,6 +16,8 @@
 #define NMEA_OUTPUT_RMC_ONE_FIX_POSITION "0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
 #define NMEA_OUTPUT_RMC_GSA_ONE_FIX_POSITION "0,1,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0"                                        
 
+#define RESET_GPS_ON HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET)
+#define RESET_GPS_OFF HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET)
 
 typedef enum
 {
@@ -38,11 +40,11 @@ typedef enum
 } ACK_CODE;
 
 
+void GPS_Task(void const * argument);
 ACK_CODE PMTK_ACK(unsigned char * Command);
 ACK_CODE PMTK_NO_PARAMETR_COMMAND( unsigned char *DATA);
 ACK_CODE PMTK_PARAMETR_COMMAND( unsigned char *Command, unsigned char *Parametr);
 ACK_CODE SetNMEAOutput(void);
 void SetNmeaCommandFreq(unsigned char NMEA_SEN, unsigned char Setting);
-unsigned char InitKL3333();
 
 #endif

@@ -56,7 +56,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */     
-
+#include "KL3333.H"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -79,7 +79,7 @@
 
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
-osThreadId MainTaskHandle;
+osThreadId myTask03Handle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -87,7 +87,7 @@ osThreadId MainTaskHandle;
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void const * argument);
-void MainComtrolTask(void const * argument);
+extern void GPS_Task(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -138,9 +138,9 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
-  /* definition and creation of MainTask */
-  osThreadDef(MainTask, MainComtrolTask, osPriorityIdle, 0, 128);
-  MainTaskHandle = osThreadCreate(osThread(MainTask), NULL);
+  /* definition and creation of myTask03 */
+  osThreadDef(myTask03, GPS_Task, osPriorityIdle, 0, 512);
+  myTask03Handle = osThreadCreate(osThread(myTask03), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -161,27 +161,9 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    osDelay(100);
   }
   /* USER CODE END StartDefaultTask */
-}
-
-/* USER CODE BEGIN Header_MainComtrolTask */
-/**
-* @brief Function implementing the MainTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_MainComtrolTask */
-void MainComtrolTask(void const * argument)
-{
-  /* USER CODE BEGIN MainComtrolTask */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END MainComtrolTask */
 }
 
 /* Private application code --------------------------------------------------*/

@@ -21,7 +21,6 @@ Src/KL3333.o: ../Src/KL3333.c ../Inc/USART.H ../Inc/main.h \
  ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_flash_ex.h \
  ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_i2c.h \
  ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_i2c_ex.h \
- ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_iwdg.h \
  ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_pwr.h \
  ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_pwr_ex.h \
  ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_tim.h \
@@ -29,7 +28,7 @@ Src/KL3333.o: ../Src/KL3333.c ../Inc/USART.H ../Inc/main.h \
  ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_uart.h \
  ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_uart_ex.h \
  ../Inc/stm32f0xx_it.h ../Inc/KL3333.H ../Inc/NMEA.H ../Inc/KL3333.H \
- ../Inc/gpio.h ../Inc/main.h ../Inc/iwdg.h
+ ../Inc/gpio.h ../Inc/main.h
 
 ../Inc/USART.H:
 
@@ -79,8 +78,6 @@ Src/KL3333.o: ../Src/KL3333.c ../Inc/USART.H ../Inc/main.h \
 
 ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_i2c_ex.h:
 
-../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_iwdg.h:
-
 ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_pwr.h:
 
 ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_pwr_ex.h:
@@ -104,5 +101,3 @@ Src/KL3333.o: ../Src/KL3333.c ../Inc/USART.H ../Inc/main.h \
 ../Inc/gpio.h:
 
 ../Inc/main.h:
-
-../Inc/iwdg.h:

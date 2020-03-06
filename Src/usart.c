@@ -117,9 +117,9 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 #define RX_BUFFER_SIZE 1000
 static  uint8_t rx_buffer[RX_BUFFER_SIZE];
 
-volatile uint16_t rx_wr_index=0,rx_rd_index=0;
-volatile uint16_t rx_counter=0;
-volatile uint8_t rx_buffer_overflow=0;
+static uint16_t rx_wr_index=0,rx_rd_index=0;
+static uint16_t rx_counter=0;
+static uint8_t rx_buffer_overflow=0;
 
 // USART Transmitter buffer
 #define TX_BUFFER_SIZE 1000
@@ -163,8 +163,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   {	
 	rx_counter++;
 	rx_buffer[rx_wr_index]=sim;
-        HAL_UART_Transmit_IT(&huart2, (uint8_t*)&rx_buffer[rx_wr_index], 1);
-        NMEA_CHECK(rx_buffer[rx_wr_index]);     //put_char1(rx_buffer[rx_wr_index]);
+    NMEA_CHECK(rx_buffer[rx_wr_index]);     //put_char1(rx_buffer[rx_wr_index]);
 	if (++rx_wr_index == RX_BUFFER_SIZE) rx_wr_index=0;
 	HAL_UART_Receive_IT(&huart1, (uint8_t*)&sim, 1);
         

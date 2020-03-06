@@ -5,7 +5,7 @@
 #include "gpio.h"
 //#include "stm32f0xx_it.h"
 #include "main.h"
-#include "iwdg.h"
+//#include "iwdg.h"
 //#include "HMI.H"
 
 
@@ -33,71 +33,72 @@
 const unsigned char * PMTR_ACK="$PMTK001";
 static const char* hex_digits="0123456789ABCDEF";
 
-unsigned char InitKL3333()
+#define RESET_STATE     0
+#define INIT_RATE_STATE 1
+#define INIT_OUT_STATE  2
+#define GET_DATA_STATE  3
+
+static uint8_t GPS_FSM =RESET_STATE;
+static unsigned char  message_buffer[200];
+double CurLat, CurLong = 0;
+float  GroundSpeed = 100;
+GPS_TIME system_time;
+
+void GPS_Task(void const * argument)
 {
-  static unsigned char  message_buffer[200];
-  unsigned char STATE= 0;
-  ACK_CODE ACK;
+	while(1)
+	{
+	osDelay(100);
+	switch (GPS_FSM)
+	{
+		case RESET_STATE:
+			RESET_GPS_ON;
+			osDelay(1000);
+			RESET_GPS_OFF;
+			ClearRXBuffer();
+			GPS_FSM = INIT_RATE_STATE;
+			break;
+		case INIT_RATE_STATE:
+			if (GetNMEAMessage(message_buffer))
+			{
+				ClearRXBuffer();
+			    if ((message_buffer[0] == '$') && (message_buffer[1]=='G') )
+			    {
+				   PMTK_PARAMETR_COMMAND( PMTK_SET_NMEA_BAUDRATE,"115200");
+				   GPS_FSM = INIT_OUT_STATE;
+				}
+			}
+			break;
+		case INIT_OUT_STATE:
+			if (GetNMEAMessage(message_buffer))
+			{
+				ClearRXBuffer();
+			    if ((message_buffer[0] == '$') && (message_buffer[1]=='G') )
+			    {
+			    	PMTK_PARAMETR_COMMAND(PMTK_DT_NMEA_OUTPUT,NMEA_OUTPUT_RMC_ONE_FIX_POSITION );
+				    GPS_FSM = GET_DATA_STATE;
+			    }
+			}
+			break;
+		case GET_DATA_STATE:
+			if (GetNMEAMessage(message_buffer))
+			   if (!CHECK_CRC(message_buffer) &&  (message_buffer[3]=='R'))
+			   {
+			             if (Parse_RMC_Command(message_buffer,&CurLat,&CurLong,&GroundSpeed,&system_time) == VALID)
+			             {
+			                // if (system_time.second ==0)
+			                //  	   B_ON = 1;        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+			             }
+			   }
+			break;
+		default:
+			break;
 
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
-  ResetSecCounter();
-  
-  HAL_UART_Receive_IT(&huart1, (uint8_t*)&message_buffer[0], 1);
-  while (Get0_5SecCounter() < 2)
-  {
-     RestWDT();
-  }
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET); 
-  ClearRXBuffer();
-   ResetSecCounter();
-  //Цикл на 10 секунд для инициализации модуля GPS
-  while (Get0_5SecCounter() <= 10)
-  {      
-     RestWDT();
-    //Через 2 секудны после начала работы переинециализируетм канал связи с GPS модулем на штатную скорость работы
-    if (((Get0_5SecCounter() == 5) && (STATE ==0)) || (STATE==3))
-     {                                        
-            STATE = 1;           
-            ClearRXBuffer();
-     }     
-     //Выходим из цикла, в случаее если принят пакет на штатной скорости рабоы, в противном случаее выходим из цикла через 4 секудны, со значением EREOR_STATE   
-     if  (STATE == 2)
-     {
-        
-        ClearRXBuffer();
-        PMTK_PARAMETR_COMMAND(PMTK_DT_NMEA_OUTPUT,NMEA_OUTPUT_RMC_ONE_FIX_POSITION );
-       
-      //  SetNmeaCommandFreq(17,1);
-       // ACK = SetNMEAOutput();
-       // ACK = PMTK_PARAMETR_COMMAND( PMTK_SET_PPS_CONFIG_CMD ,"3,10"); //Устанавливаем парамерты PPS сигнала, 2D/3D fix, 10 мс длительность PPS
-        //ACK = PMTK_PARAMETR_COMMAND( PMTK_SET_SYNC_PPS_NMEA,"1")       //Включаем PPS
-       return STATE;                 
-     }
-     /*
-      Принимаем пакет от GPS модуля, если переменная STATE в начальном значении INIT_9600_STATE, значит пакет принят на скорости 9600 ,
-      тогда отправляем команду на изменение скорости, если переменная STATE имеет значение ERROR_STATE, значит канал уже перенасторен на
-      штаную скорость и можно переходить к инициализации GPS модуля
-     */
-     if (GetNMEAMessage(message_buffer))
-     {
-        ClearRXBuffer();
-       if ((message_buffer[0] == '$') && (message_buffer[1]=='G') )       
-                switch (STATE)
-                {
-                    case 1:
-                        STATE = 2;                      
-                        break;
-                    case 0:   
-         
-                        PMTK_PARAMETR_COMMAND( PMTK_SET_NMEA_BAUDRATE,"115200");                                                
-                        STATE=3;
-                        break;
-                }                                                                              
-
-      }
-  }
- return STATE;
+	}
+	}
 }
+
+
  unsigned int temp;
  ACK_CODE PMTK_ACK(unsigned char * Command)
  {
@@ -107,9 +108,9 @@ unsigned char InitKL3333()
   
       
    
-   //Для гаранитрованой работы системы, проверям корректность ответа от приемника, поскольку на момент 
-   //передачи данных приемник мог выводить другие сообщения, ответ может прейти через одно или несколько
-   // NMEA сообщений, поэтому ждем пакета, PMTK
+   //пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 
+   //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+   // NMEA пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, PMTK
    
    for (i=0;i<100;i++)     
    {
@@ -123,8 +124,8 @@ unsigned char InitKL3333()
      
    if (error_code != ACK_TIME_OUT)
    {
-   //Провера преамбулы, если очень хочеться, можно использовать стандрартную библиотеку работы
-   //со строками, но для оптимизации прозиводительнсти суммируем полученные данные по XOR c ожидаемым ответом
+   //пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+   //пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ XOR c пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
    if (!(DATA[0]^PMTR_ACK[0]^DATA[1]^PMTR_ACK[1]^DATA[2]^PMTR_ACK[2]^DATA[3]^PMTR_ACK[3]^DATA[4]^PMTR_ACK[4]^DATA[5]^PMTR_ACK[5]^DATA[6]^PMTR_ACK[6]^DATA[7]^PMTR_ACK[7]))
    {
      temp = DATA[9]^Command[5]^DATA[10]^Command[6]^DATA[11]^Command[7];
