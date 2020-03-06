@@ -41,6 +41,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "iwdg.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -62,7 +63,12 @@
  #define B_br0  0
  #define W_br  33 //60
  #define W_br0 33 //15
-     
+ #define   PPSSycle    2
+ #define   Temp_T2     (unsigned int)120*PPSSycle
+ #define   Temp_T1     (unsigned int)25*PPSSycle
+ #define BrigthChageSpeed 2
+ #define RISE 		1
+ #define FALL		0
 
 /* USER CODE END PD */
 
@@ -74,15 +80,18 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-unsigned char counter_PPS=0,
-              Tic_PPS=2;
-static unsigned char smenaPPS=0,
-  Temp_bit=0,
-   Mig_ON_nOFF=0;
-   B_ON=0,
-   PPS_OK=0,
-   PPS_stat = 0;
 
+
+
+static uint8_t ucPPScounter=0;
+
+static unsigned char smenaPPS=0;
+static uint8_t  Mig_ON_nOFF=0;
+static uint8_t  B_ON=0;
+
+static uint8_t ucRiseFall;
+static   unsigned int time_4ms;
+static   unsigned char Ltime_4msl;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -99,52 +108,96 @@ static void MX_NVIC_Init(void);
 
 void vmainPPSSet()
 {
-
-	counter_PPS++;
-	PPS_stat = 1;
-	if (GetB_ON())
+	ucPPScounter++;
+	if (B_ON)
 	{
-	   counter_PPS=10;
+	   ucPPScounter=PPSSycle<<1;
 	   B_ON=0;
     }
-	if( counter_PPS >= Tic_PPS)
+	if ( ucPPScounter >= PPSSycle)
 	{
-	   counter_PPS=0;
-	   SetSmenaPPS();
-	   PPS_OK=1;
+	   ucPPScounter=0;
+	   smenaPPS=1;
     }
 }
 
-unsigned char GetTic_PPS()
-{
-	return Tic_PPS;
-}
-unsigned char GetB_ON()
-{
-	return B_ON;
-}
 
 void SetB_ON()
 {
 	B_ON=1;
 
 }
-void SetSmenaPPS()
+
+void TimerInc()
 {
-	smenaPPS=1;
+	 time_4ms++;
+	 Ltime_4msl++;
 }
 
 
-
-
-void vManiTsk()
+void StartDefaultTask(void const * argument)
 {
-	SetPWM4(100);
-    SetPWM3(0);
-	osDelay(1000);
-	SetPWM4(0);
-	SetPWM3(100);
-	osDelay(1000);
+	unsigned char _jarcostjB_mas[14]= {0,0,0,0,0,0,0,    B_br,B_br,B_br,B_br,B_br,B_br,B_br};   // REG_3
+    unsigned char _jarcostjW_mas[14]= {W_br,W_br,W_br,W_br,W_br,W_br,W_br,W_br0,W_br0,W_br0,W_br0,W_br0,W_br0,W_br0};   // REG_6
+    unsigned char step=0;
+    Mig_ON_nOFF=1;
+    ucPPScounter=0;
+    smenaPPS=0;
+    B_ON=0;
+    time_4ms=0;
+    Ltime_4msl=0;
+	while(1)
+	{
+		ResetWDT();
+		if(smenaPPS)   //Выставлен флаг PPS
+		{
+	        Mig_ON_nOFF=0;      // ����� ����� �� ������� � ������� ����� �������
+	        smenaPPS=0;         // ����� �����
+	        time_4ms=Temp_T2+1; // ����� ������� ���������� �� ��������� �������
+		}
+
+		switch (Mig_ON_nOFF)
+		{
+
+			case 0:
+				if ( time_4ms ==Temp_T1 )
+				{
+				   Mig_ON_nOFF=1;
+				   ucRiseFall = FALL;
+				   Ltime_4msl=0;
+				}
+				if ( time_4ms>=Temp_T2 )
+				{
+					Mig_ON_nOFF=1;
+					ucRiseFall = RISE;
+					Ltime_4msl=0;
+				}
+				break;
+			case 1://Запуск процесса плавного увеличения и уменьшения яркост
+				if (Ltime_4msl >=BrigthChageSpeed)
+				{
+					Ltime_4msl=0;
+				   	switch(ucRiseFall)
+				   	{
+				   	  case RISE:  //Если увеличение яркости, пробигаем массив с лева на право
+				  	          SetPWM4(_jarcostjB_mas[step]);
+				  	          SetPWM3(_jarcostjW_mas[step]);
+				  	  	      break;
+				  	 case FALL:	  //Если увеличение яркости, пробигаем массив с права на лево
+				   	  	      SetPWM4(_jarcostjB_mas[13-step]);
+				   	  	      SetPWM3(_jarcostjW_mas[13-step]);
+				   	  	      break;
+				     }
+				   	 step++;
+					 if (step>13)
+					 {
+					    step=0;
+						Mig_ON_nOFF=0;
+					 }
+				}
+				break;
+		}
+	}
 }
 /* USER CODE END 0 */
 
@@ -155,12 +208,7 @@ void vManiTsk()
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-    unsigned char STATE=0;
-	  unsigned char _jarcostjB_mas[14]= {0,0,0,0,0,0,0,    B_br,B_br,B_br,B_br,B_br,B_br,B_br};   // REG_3
-	  unsigned char _jarcostjW_mas[14]= {W_br,W_br,W_br,W_br,W_br,W_br,W_br,          W_br0,W_br0,W_br0,W_br0,W_br0,W_br0,W_br0};   // REG_6
-	  unsigned char temp_mcusr,step;
-	  unsigned int Temp_T1,Temp_T2;
-	  unsigned char Time_ON=0;
+
 
   /* USER CODE END 1 */
   
@@ -185,8 +233,8 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM3_Init();
   MX_USART1_UART_Init();
-  MX_TIM6_Init();
   MX_TIM2_Init();
+  MX_IWDG_Init();
 
   /* Initialize interrupts */
   MX_NVIC_Init();
@@ -196,31 +244,7 @@ int main(void)
 
    //RestWDT();
 
-  Tic_PPS=2;                         // ������ ������������ ������ PPS
-  Temp_T2=(unsigned int)120*Tic_PPS; // ���������� ������ �������,�� ���������, ����� ��������� ������� PPS ������
-                                     // ������� �������� � ���-�� PPS ����������� Tic_PPS
-  Temp_T1=(unsigned int)25*Tic_PPS;  // ���������� ����� �������
-  Mig_ON_nOFF=1;                     // ������������� ���� ����� ������������� ���������
-  Temp_bit=1;
-  // �������� ������� ������������� ��������� ����� �� �����
-  counter_PPS=0;                     // ����� �������� ��������� PPS
-  smenaPPS=0;                        // ����� ����� ��������� ������� �� PPS
-  PPS_OK=0;                          // ����� ����� ���������� ��������� ��������� ������� �� PPS
-  B_ON=0;                            // ����� ����� ������� �������������
-
-
-
-  //while(1);
-  if (Tic_PPS==1)                    // �������� �������� �������� ��������� ������������� ���������
-  {
-   temp_mcusr=1;           // temp_mcusr - ���������� � ����� ���������(���������) �������� ������� ��������
-                           // ��� ��������� � ������� �����������
-  }
-  else{temp_mcusr=2;};     // 2-3 ������������ ��. ��� 1 ��� ��� ������� ��������. ������ 3� ������ ����� �����.
-  Time_ON=1;               // ???
-  step=0;                  // ������������� ������������� 0-��� ����� �������
-  SetTimer4ms(0);              // ���������� ����� � ������ �������
-  SetTimer4msl(0);            // ���������� ����� � ������� ����������� ����������� �� ������� ��������������
+             // ���������� ����� � ������� ����������� ����������� �� ������� ��������������
 
   /* USER CODE END 2 */
  
@@ -237,94 +261,16 @@ int main(void)
   while (1)
   {
   //  RestWDT();
-    if(smenaPPS)          // ������ TIC_PPS ��������� PPS
-      {
-        Mig_ON_nOFF=0;      // ����� ����� �� ������� � ������� ����� �������
-        smenaPPS=0;         // ����� �����
-        SetTimer4ms(Temp_T2+1); // ����� ������� ���������� �� ��������� �������
-      }
-      //*********************************************************************
-      else
-      {
-      }
+
       //*********************************************************************
 
-      if (Mig_ON_nOFF==0 && Temp_T1 == GetTimer4ms() )// && Temp_T2 >= time_4ms  // ������� ��������� �������
-      {
-        Mig_ON_nOFF=1;   // ���������� ��������� ������������� ���������
-        Temp_bit=0;      // �������� ������� ������������� ��������� ������ �� ����
-        Time_ON=1;       // ???
-        SetTimer4msl(0);   // ����� ���������� �������
-      };
 
-      if (Mig_ON_nOFF==0 && Temp_T2 < GetTimer4ms() ) // ������� ��������� �������
-      {
-        Mig_ON_nOFF=1;   // ���������� ��������� ������������� ���������
-        Temp_bit=1;      // �������� ������� ������������� ��������� ����� �� �����
-        Time_ON=1;       // ???
-        SetTimer4msl(0);    // ����� ���������� �������
-        SetTimer4ms(0);     // ����� ������� ������� �� ����� ������
-        if(!PPS_stat) PPS_OK = 0;
-        PPS_stat = 0;
-      };   //!!!putchar0(Temp_Ltime);
-
-
-      if(Mig_ON_nOFF) // ���������� ��������� ������������� ���������
-      {
-        if(Temp_bit)  // �������� ������� ������������� ��������� ����� �� �����
-        {
-          if(GetTimer4msl(0)>=temp_mcusr) // ��������� ����� ��������� �������� ��������� �������������
-          {
-        	SetTimer4msl(0);      // ����� ���������� �������
-            if(Time_ON)        // ???      (���� �������� �� ���� ��������� � +�� � � ��� ������ ��)
-            {
-              if(step <= 13)   // ������� ���� � ��������
-              {
-                  SetPWM4(_jarcostjB_mas[step]);  // �������� �������������                 
-                  SetPWM3(_jarcostjW_mas[step]);  // �������� �������������             
-                  step++;
-              }
-              else             // ������� ���� ��������
-              {
-                step=0;        // ����� � ������ �������
-                Time_ON=0;     // ???
-                Mig_ON_nOFF=0; // ����� ������������� ��������� ������������� ��������
-              };
-
-
-            };
-          };
-        }
-        else  // �������� ������� ������������� ��������� ������ �� ����
-        {
-          if(GetTimer4msl(0)>=temp_mcusr)
-          {
-        	SetTimer4msl(0);      // ����� ���������� �������
-            if(Time_ON)        // ???
-            {
-              if(step <= 13)   // ������� ���� � ��������
-              {
-            	SetPWM4(_jarcostjB_mas[13-step]);  // �������� �������������            	
-            	SetPWM3(_jarcostjW_mas[13-step]);  // �������� �������������          
-                step++;
-              }
-              else             // ������� ���� ��������
-              {
-                step=0;        // ����� � ������ �������
-                Time_ON=0;     // ???
-                Mig_ON_nOFF=0; // ����� ������������� ��������� ������������� ��������
-              };
-            };
-          };
-        };
-      };
 
           
     }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
- // }*/
   /* USER CODE END 3 */
 }
 
@@ -340,10 +286,12 @@ void SystemClock_Config(void)
 
   /** Initializes the CPU, AHB and APB busses clocks 
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI
+                              |RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;

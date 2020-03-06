@@ -82,9 +82,9 @@ void SetSmenaPPS();
 unsigned char GetTic_PPS();
 void SetB_ON();
 unsigned char GetB_ON();
-
-void vManiTsk();
+void StartDefaultTask(void const * argument);
 void vmainPPSSet();
+void TimerInc();
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

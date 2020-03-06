@@ -62,13 +62,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-unsigned int time_10ms=0;
-unsigned int time_05s=0;
-unsigned int time_4ms;
-unsigned int TimeForPPS;
-unsigned char Ltime_4msl;
-unsigned char DIN_1,DIN_2,DIN_3;
-unsigned char Time_50HZ_1=0,Time_50HZ_2=0,Time_50HZ_3=0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -78,84 +72,16 @@ unsigned char Time_50HZ_1=0,Time_50HZ_2=0,Time_50HZ_3=0;
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-unsigned int Time_2_2KHz_1;
-unsigned int Time_2_2KHz_2;
-unsigned int Time_2_2KHz_3;
-unsigned char DIN1_RISE=1;
-unsigned char DIN2_RISE=1;
-unsigned char DIN3_RISE=1;
-
 
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
-extern TIM_HandleTypeDef htim6;
 extern UART_HandleTypeDef huart1;
 extern TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN EV */
-unsigned char GetDIN_1()
-{
-	return DIN_1;
-}
-unsigned char GetDIN_2()
-{
-	return DIN_2;
-}
-unsigned char GetDIN_3()
-{
-	return DIN_3;
-}
-void SetDIN_1(unsigned char data)
-{
-	DIN_1 =data;
-}
-void SetDIN_2(unsigned char data)
-{
-	DIN_2 =data;
-}
-void SetDIN_3(unsigned char data)
-{
-	DIN_3 =data;
-}
-unsigned int GetTimer4ms()
-{
-	return time_4ms;
-}
-void SetTimer4ms(unsigned int data )
-{
-	 time_4ms = data;
-}
-unsigned int GetTimer4msl()
-{
-	return Ltime_4msl;
-}
-void SetTimer4msl(unsigned int data )
-{
-	 Ltime_4msl = data;
-}
-unsigned char Get0_5SecCounter()
-{
-	return time_05s;
-}
-void ResetSecCounter()
-{
-	time_05s =0;
-}
-unsigned int GetTime_2_2KHz_1()
-{
-  return Time_2_2KHz_1;
-}
-unsigned int GetTime_2_2KHz_2()
-{
-  return Time_2_2KHz_2;
-}
-unsigned int GetTime_2_2KHz_3()
-{
-  return Time_2_2KHz_3;
-}
-
 
 
 /* USER CODE END EV */
@@ -206,7 +132,6 @@ void EXTI2_3_IRQHandler(void)
   /* USER CODE BEGIN EXTI2_3_IRQn 0 */
   if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_3) != RESET)
   {
-	Ltime_4msl=0;
     vmainPPSSet();
     __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_3);
   }
@@ -232,53 +157,33 @@ void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles TIM2 global interrupt.
+  */
+void TIM2_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM2_IRQn 0 */
+   TimerInc();
+
+  htim2.Instance->SR &=0xFE;
+  /* USER CODE END TIM2_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim2);
+  /* USER CODE BEGIN TIM2_IRQn 1 */
+
+  /* USER CODE END TIM2_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM3 global interrupt.
   */
 void TIM3_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM3_IRQn 0 */
-  
-   time_10ms++;
-   if (time_10ms == 50 )
-   {
-		  time_10ms=0;
-		  time_05s++;
-	  }
-   time_4ms++;
-   Ltime_4msl++;
-   TimeForPPS++;   
   htim3.Instance->SR &=0xFE;
   /* USER CODE END TIM3_IRQn 0 */
   HAL_TIM_IRQHandler(&htim3);
   /* USER CODE BEGIN TIM3_IRQn 1 */
 
   /* USER CODE END TIM3_IRQn 1 */
-}
-
-/**
-  * @brief This function handles TIM6 global and DAC underrun error interrupts.
-  */
-void TIM6_DAC_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
-	/*  time_10ms++;
-	  if (time_10ms == 125 )
-	  {
-		  time_10ms=0;
-		  time_05s++;
-	  }
-	  time_4ms++;
-	  Ltime_4msl++;
-	  TimeForPPS++;*/
-	  Time_2_2KHz_1++;
-          Time_2_2KHz_2++;
-          Time_2_2KHz_3++;
-
-  /* USER CODE END TIM6_DAC_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim6);
-  /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
-
-  /* USER CODE END TIM6_DAC_IRQn 1 */
 }
 
 /**

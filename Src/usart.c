@@ -114,21 +114,11 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
 /* USER CODE BEGIN 1 */
 // USART Receiver buffer
-#define RX_BUFFER_SIZE 1000
+#define RX_BUFFER_SIZE 300
 static  uint8_t rx_buffer[RX_BUFFER_SIZE];
 
 static uint16_t rx_wr_index=0,rx_rd_index=0;
 static uint16_t rx_counter=0;
-static uint8_t rx_buffer_overflow=0;
-
-// USART Transmitter buffer
-#define TX_BUFFER_SIZE 1000
-static uint8_t  tx_buffer[TX_BUFFER_SIZE];
-
-
-
-static uint16_t tx_wr_index=0,tx_rd_index=0;
-static uint16_t tx_counter=0;
 
 
 
@@ -207,19 +197,12 @@ void ClearRXBuffer()
   rx_rd_index=0;
   CLEAR_NMEA_MASSEGE_BUFFER();
 }
-void USART1_ReInit(unsigned char rate)
-{
 
-  CLEAR_BIT(huart1.Instance->CR1, (USART_CR1_UE));
-  MX_USART1_UART_Init1();
-  SET_BIT(huart1.Instance->CR1, (USART_CR1_UE));
 
-}
 void put_str_pak(unsigned char *s, unsigned int c)
 {    
   while(HAL_UART_Transmit_IT(&huart1,s,c)==HAL_BUSY);  
-  //for (uint16_t k=0; k < c; k++)
-   // put_char(*s++);    
+
 return;
 }
 /* USER CODE END 1 */

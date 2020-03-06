@@ -66,8 +66,8 @@ void NMI_Handler(void);
 void HardFault_Handler(void);
 void EXTI2_3_IRQHandler(void);
 void TIM1_BRK_UP_TRG_COM_IRQHandler(void);
+void TIM2_IRQHandler(void);
 void TIM3_IRQHandler(void);
-void TIM6_DAC_IRQHandler(void);
 void USART1_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 unsigned char GetDIN_1();

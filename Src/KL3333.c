@@ -1,11 +1,13 @@
 //#include "utils.h"
 #include "USART.H"
 #include "KL3333.H"
+#include "main.h"
 //#include "NMEA.H"
 #include "gpio.h"
+#include "cmsis_os.h"
 //#include "stm32f0xx_it.h"
 #include "main.h"
-//#include "iwdg.h"
+#include "iwdg.h"
 //#include "HMI.H"
 
 
@@ -30,7 +32,7 @@
 #define ACTION_FAILED           '2'
 #define ACTION_SUCCEDED         '3'
 #define ACK_TIMEOUT             1000
-const unsigned char * PMTR_ACK="$PMTK001";
+static unsigned char PMTR_ACK[]="$PMTK001";
 static const char* hex_digits="0123456789ABCDEF";
 
 
@@ -45,6 +47,7 @@ void GPS_Task(void const * argument)
 {
 	while(1)
 	{
+    ResetWDT();
 	osDelay(100);
 	switch (GPS_FSM)
 	{
