@@ -164,7 +164,7 @@ void TIM2_IRQHandler(void)
   /* USER CODE BEGIN TIM2_IRQn 0 */
    TimerInc();
 
-  htim2.Instance->SR &=0xFE;
+ // htim2.Instance->SR &=0xFE;
   /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */

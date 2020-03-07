@@ -48,7 +48,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-//#include "iwdg.h"
+#include "iwdg.h"
 #include "KL3333.H"
 /* USER CODE END Includes */
 
@@ -84,9 +84,8 @@
 
 
 static uint8_t ucPPScounter=0;
-
 static unsigned char smenaPPS=0;
-static uint8_t  Mig_ON_nOFF=0;
+
 static uint8_t  B_ON=0;
 
 static uint8_t ucRiseFall;
@@ -139,27 +138,23 @@ void StartDefaultTask(void const * argument)
 {
 	unsigned char _jarcostjB_mas[14]= {0,0,0,0,0,0,0,    B_br,B_br,B_br,B_br,B_br,B_br,B_br};   // REG_3
     unsigned char _jarcostjW_mas[14]= {W_br,W_br,W_br,W_br,W_br,W_br,W_br,W_br0,W_br0,W_br0,W_br0,W_br0,W_br0,W_br0};   // REG_6
-    unsigned char step=0;
-    Mig_ON_nOFF=1;
-    ucPPScounter=0;
-    smenaPPS=0;
+    uint8_t  step=0;
+    uint8_t  Mig_ON_nOFF=1;
     B_ON=0;
     time_4ms=0;
     Ltime_4msl=0;
+
 	while(1)
 	{
 		ResetWDT();
 		if(smenaPPS)   //Выставлен флаг PPS
 		{
-	        Mig_ON_nOFF=0;      // ����� ����� �� ������� � ������� ����� �������
-	        smenaPPS=0;         // ����� �����
-	        time_4ms=Temp_T2+1; // ����� ������� ���������� �� ��������� �������
+	        Mig_ON_nOFF=0;
+	        smenaPPS=0;
+	        time_4ms=Temp_T2+1;
 		}
-
-		switch (Mig_ON_nOFF)
+		if (Mig_ON_nOFF==0)
 		{
-
-			case 0:
 				if ( time_4ms ==Temp_T1 )
 				{
 				   Mig_ON_nOFF=1;
@@ -171,32 +166,31 @@ void StartDefaultTask(void const * argument)
 					Mig_ON_nOFF=1;
 					ucRiseFall = RISE;
 					Ltime_4msl=0;
+					time_4ms=0;
 				}
-				break;
-			case 1://Запуск процесса плавного увеличения и уменьшения яркост
+		}
+		else
+			//Запуск процесса плавного увеличения и уменьшения яркост
 				if (Ltime_4msl >=BrigthChageSpeed)
 				{
 					Ltime_4msl=0;
-				   	switch(ucRiseFall)
+				   	if (ucRiseFall==RISE)
 				   	{
-				   	  case RISE:  //Если увеличение яркости, пробигаем массив с лева на право
+				   	   //Если увеличение яркости, пробигаем массив с лева на право
 				  	          SetPWM4(_jarcostjB_mas[step]);
 				  	          SetPWM3(_jarcostjW_mas[step]);
-				  	  	      break;
-				  	 case FALL:	  //Если увеличение яркости, пробигаем массив с права на лево
+				   	}
+				   	else
+				   	{	  //Если уменьшение яркости, пробигаем массив с права на лево
 				   	  	      SetPWM4(_jarcostjB_mas[13-step]);
 				   	  	      SetPWM3(_jarcostjW_mas[13-step]);
-				   	  	      break;
 				     }
-				   	 step++;
-					 if (step>13)
+					 if (++step>13)
 					 {
 					    step=0;
 						Mig_ON_nOFF=0;
 					 }
 				}
-				break;
-		}
 	}
 }
 /* USER CODE END 0 */
@@ -208,7 +202,6 @@ void StartDefaultTask(void const * argument)
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
 
   /* USER CODE END 1 */
   
@@ -241,11 +234,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
   SetPWM4(0);
   SetPWM3(0);
-
-   //RestWDT();
-
-             // ���������� ����� � ������� ����������� ����������� �� ������� ��������������
-
   /* USER CODE END 2 */
  
   /* Call init function for freertos objects (in freertos.c) */
@@ -253,21 +241,15 @@ int main(void)
  
   /* Start scheduler */
   osKernelStart();
- 
   /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-  //  RestWDT();
-
-      //*********************************************************************
 
 
-
-          
-    }
+  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

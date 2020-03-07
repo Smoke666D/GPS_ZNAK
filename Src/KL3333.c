@@ -7,7 +7,7 @@
 #include "cmsis_os.h"
 //#include "stm32f0xx_it.h"
 #include "main.h"
-#include "iwdg.h"
+//#include "iwdg.h"
 //#include "HMI.H"
 
 
@@ -82,12 +82,11 @@ void GPS_Task(void const * argument)
 			break;
 		case GET_DATA_STATE:
 			if (GetNMEAMessage(message_buffer))
-			   if (!CHECK_CRC(message_buffer) &&  (message_buffer[3]=='R'))
+			   if (!CHECK_CRC(message_buffer)  &&  (message_buffer[3]=='R'))
 			   {
 			             if (Parse_RMC_Command(message_buffer,&CurLat,&CurLong,&GroundSpeed,&system_time) == VALID)
 			             {
 			                 if (system_time.second ==0)	 SetB_ON();
-
 			             }
 			   }
 			break;
