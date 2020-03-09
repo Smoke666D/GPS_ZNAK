@@ -76,6 +76,8 @@ void GPS_Task(void const * argument)
 			    if ((message_buffer[0] == '$') && (message_buffer[1]=='G') )
 			    {
 			    	PMTK_PARAMETR_COMMAND(PMTK_DT_NMEA_OUTPUT,NMEA_OUTPUT_RMC_ONE_FIX_POSITION );
+			    	PMTK_PARAMETR_COMMAND(PMTK_SET_PPS_CONFIG_CMD, NMEA_PPS_CONFGI);
+			    	PMTK_PARAMETR_COMMAND( PMTK_API_SET_GNSS_SEARCH_MODE,NMEA_GPS_GLOANSS);
 				    GPS_FSM = GET_DATA_STATE;
 			    }
 			}
