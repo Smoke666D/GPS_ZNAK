@@ -80,15 +80,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
-
-
 static uint8_t ucPPScounter=0;
 static unsigned char smenaPPS=0;
-
 static uint8_t  B_ON=0;
-
-static uint8_t ucRiseFall;
 static   unsigned int time_4ms;
 static   unsigned char Ltime_4msl;
 /* USER CODE END PV */
@@ -120,30 +114,28 @@ void vmainPPSSet()
     }
 }
 
-
 void SetB_ON()
 {
 	B_ON=1;
 
 }
-
 void TimerInc()
 {
+
 	 time_4ms++;
 	 Ltime_4msl++;
 }
 
-
 void StartDefaultTask(void const * argument)
 {
 	unsigned char _jarcostjB_mas[14]= {0,0,0,0,0,0,0,    B_br,B_br,B_br,B_br,B_br,B_br,B_br};   // REG_3
-    unsigned char _jarcostjW_mas[14]= {W_br,W_br,W_br,W_br,W_br,W_br,W_br,W_br0,W_br0,W_br0,W_br0,W_br0,W_br0,W_br0};   // REG_6
     uint8_t  step=0;
+    uint8_t ucRiseFall;
     uint8_t  Mig_ON_nOFF=1;
     B_ON=0;
+    SetPWM3(W_br);
     time_4ms=0;
     Ltime_4msl=0;
-
 	while(1)
 	{
 		ResetWDT();
@@ -175,16 +167,13 @@ void StartDefaultTask(void const * argument)
 				{
 					Ltime_4msl=0;
 				   	if (ucRiseFall==RISE)
-				   	{
 				   	   //Если увеличение яркости, пробигаем массив с лева на право
-				  	          SetPWM4(_jarcostjB_mas[step]);
-				  	          SetPWM3(_jarcostjW_mas[step]);
-				   	}
+				  	   SetPWM4(_jarcostjB_mas[step]);
+
 				   	else
-				   	{	  //Если уменьшение яркости, пробигаем массив с права на лево
-				   	  	      SetPWM4(_jarcostjB_mas[13-step]);
-				   	  	      SetPWM3(_jarcostjW_mas[13-step]);
-				     }
+				   	  //Если уменьшение яркости, пробигаем массив с права на лево
+				   	   SetPWM4(_jarcostjB_mas[13-step]);
+
 					 if (++step>13)
 					 {
 					    step=0;

@@ -23,7 +23,6 @@
 /* USER CODE BEGIN 0 */
 #include "KL3333.H"
 #include "main.h"
-unsigned long BoundRateTable[]={1200,2400,4800,9600,14400,19200,38400,56000,115200,128000,230400,460800};
 volatile char sim;
 /* USER CODE END 0 */
 
@@ -191,7 +190,6 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 
 void ClearRXBuffer()
 {
-
   rx_counter=0;
   rx_wr_index=0;
   rx_rd_index=0;
@@ -201,9 +199,8 @@ void ClearRXBuffer()
 
 void put_str_pak(unsigned char *s, unsigned int c)
 {    
-  while(HAL_UART_Transmit_IT(&huart1,s,c)==HAL_BUSY);  
 
-return;
+	while(HAL_UART_Transmit_IT(&huart1,s,c)==HAL_BUSY);
 }
 /* USER CODE END 1 */
 
