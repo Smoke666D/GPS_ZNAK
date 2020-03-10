@@ -9,16 +9,16 @@
 #define PMTK_CMD_WARM_START      "$PMTK102*31" 
 #define PMTK_CMD_COLD_START      "$PMTK103*30" 
 #define PMTK_CMD_FULL_COLD_START "$PMTK104*37" 
-#define PMTK_SET_NMEA_BAUDRATE   "$PMTK251"
-#define  PMTK_DT_NMEA_OUTPUT     "$PMTK314"
-#define PMTK_SET_PPS_CONFIG_CMD  "$PMTK285"
+#define PMTK_SET_NMEA_BAUDRATE   (uint8_t *)"$PMTK251"
+#define  PMTK_DT_NMEA_OUTPUT     (uint8_t *)"$PMTK314"
+#define PMTK_SET_PPS_CONFIG_CMD  (uint8_t *)"$PMTK285"
 #define PMTK_SET_SYNC_PPS_NMEA   "$PMTK255"
-#define PMTK_API_SET_GNSS_SEARCH_MODE "$PMTK353"
+#define PMTK_API_SET_GNSS_SEARCH_MODE (uint8_t *)"$PMTK353"
 
-#define NMEA_PPS_CONFGI		"1,200"
-#define NMEA_GPS_GLOANSS   "1,1,0,0,0"
+#define NMEA_PPS_CONFGI		(uint8_t *)"1,200"
+#define NMEA_GPS_GLOANSS    (uint8_t *)"1,1,0,0,0"
 #define NMEA_OUTPUT_RMC_ONE_FIX_POSITION "0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
-#define NMEA_OUTPUT_GGA_ONE_FIX_POSITION "0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+#define NMEA_OUTPUT_GGA_ONE_FIX_POSITION (uint8_t *)("0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
 #define NMEA_OUTPUT_RMC_GSA_ONE_FIX_POSITION "0,1,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0"                                        
 
 #define RESET_GPS_ON HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET)
@@ -54,7 +54,7 @@ typedef enum
 void GPS_Task(void const * argument);
 ACK_CODE PMTK_ACK(unsigned char * Command);
 ACK_CODE PMTK_NO_PARAMETR_COMMAND( unsigned char *DATA);
-ACK_CODE PMTK_PARAMETR_COMMAND( unsigned char *Command, unsigned char *Parametr);
+ACK_CODE PMTK_PARAMETR_COMMAND( uint8_t *Command,uint8_t *Parametr);
 ACK_CODE SetNMEAOutput(void);
 void SetNmeaCommandFreq(unsigned char NMEA_SEN, unsigned char Setting);
 

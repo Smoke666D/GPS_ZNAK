@@ -46,7 +46,8 @@ Src/KL3333.o: ../Src/KL3333.c ../Inc/USART.H ../Inc/main.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h \
- ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
+ ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h \
+ ../Inc/iwdg.h
 
 ../Inc/USART.H:
 
@@ -155,3 +156,5 @@ Src/KL3333.o: ../Src/KL3333.c ../Inc/USART.H ../Inc/main.h \
 ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h:
 
 ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h:
+
+../Inc/iwdg.h:

@@ -6,8 +6,8 @@
 #define CR_SYMBOL               13
 #define LF_SYMBOL               10
 
-#define MAX_NMEA_SIZE           80   //Максимальный размер сообщения NMEA
-#define MAX_FLOAT_SIZE          10   //Максимальное кол-во значащих знаков в числе
+#define MAX_NMEA_SIZE           80   //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ NMEA
+#define MAX_FLOAT_SIZE          10   //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ-пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
 
 #define GSA_STATUS  9
 
@@ -59,6 +59,17 @@ RES_ERROR,
 
 typedef enum
 {
+ NO_VALID_FIX,
+ GPS_FIX,
+ DIFF_GPS_FIX,
+ PPS_FIX,
+ RTK_INT_FIX,
+ RTK_FLOAT_FIX,
+ NOT_DEFINE_CODE,
+} GGA_PARCE_ERROR;
+
+typedef enum
+{
 NMEA_PDOP,
 NMEA_HDOP,
 NMEA_VDOP,
@@ -71,6 +82,7 @@ NMEA_PARSER_CODE NMEA_Parser();
 void CLEAR_NMEA_MASSEGE_BUFFER(void);
 float ConverNEMEAStringToFloat(unsigned char *NMEAString);
 GSA_PARCE_ERROR Parse_GSA_Command(unsigned char * Command,float * PDOP,float * HDOP, float * VDOP );
+GGA_PARCE_ERROR Parce_GGA_Command(uint8_t * Commnad,GPS_TIME *gps_time);
 double ConvertNEMEAStringToDegree(unsigned char * NEMEAString,COR_TYPE Lat_Long);
 RMC_PARCE_ERROR Parse_RMC_Command(unsigned char * Command,double * Lat,double * Long, float * Speed,GPS_TIME *gps_time);
 unsigned char NMEA_CHECK(unsigned char DATA);

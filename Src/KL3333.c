@@ -7,7 +7,7 @@
 #include "cmsis_os.h"
 //#include "stm32f0xx_it.h"
 #include "main.h"
-//#include "iwdg.h"
+#include "iwdg.h"
 //#include "HMI.H"
 
 
@@ -39,8 +39,8 @@ static const char* hex_digits="0123456789ABCDEF";
 
 static uint8_t GPS_FSM =RESET_STATE;
 static unsigned char  message_buffer[200];
-double CurLat, CurLong = 0;
-float  GroundSpeed = 100;
+//double CurLat, CurLong = 0;
+//float  GroundSpeed = 100;
 GPS_TIME system_time;
 
 void GPS_Task(void const * argument)
@@ -64,7 +64,7 @@ void GPS_Task(void const * argument)
 				ClearRXBuffer();
 			    if ((message_buffer[0] == '$') && (message_buffer[1]=='G') )
 			    {
-				   PMTK_PARAMETR_COMMAND( PMTK_SET_NMEA_BAUDRATE,"115200");
+				   PMTK_PARAMETR_COMMAND(PMTK_SET_NMEA_BAUDRATE,(uint8_t *)"115200");
 				   GPS_FSM = INIT_OUT_STATE;
 				}
 			}
@@ -79,24 +79,26 @@ void GPS_Task(void const * argument)
 			    	PMTK_PARAMETR_COMMAND(PMTK_SET_PPS_CONFIG_CMD, NMEA_PPS_CONFGI);
 			    	PMTK_PARAMETR_COMMAND( PMTK_API_SET_GNSS_SEARCH_MODE,NMEA_GPS_GLOANSS);
 				    GPS_FSM = GET_DATA_STATE;
+				    ClearRXBuffer();
 			    }
 			}
 			break;
 		case GET_DATA_STATE:
-			//$$$GNGGA,235955.800,,,,,0,0,,,M,,M,,*53\r\n",
-			//GGA или GNS
-			if (GetNMEAMessage(message_buffer))
-			   if (!CHECK_CRC(message_buffer)  &&  (message_buffer[3]=='R'))
+			if (GetNMEAMessage(message_buffer) && GetPPS_OK())
+			   if (!CHECK_CRC(message_buffer)  &&  (message_buffer[3]=='G') && (message_buffer[4]=='G') && (message_buffer[3]=='A')  )
 			   {
-			             if (Parse_RMC_Command(message_buffer,&CurLat,&CurLong,&GroundSpeed,&system_time) == VALID)
+			             /*if (Parse_RMC_Command(message_buffer,&CurLat,&CurLong,&GroundSpeed,&system_time) == VALID)
 			             {
 			                 if (system_time.second ==0)	 SetB_ON();
+			             }*/
+			             if (Parce_GGA_Command(message_buffer,&system_time)!=NO_VALID_FIX)
+			             {
+			            	 if (system_time.second ==0) SetB_ON();
 			             }
 			   }
 			break;
 		default:
 			break;
-
 	}
 	}
 }
@@ -196,7 +198,7 @@ ACK_CODE SetNMEAOutput(void){
 
 
 
-ACK_CODE PMTK_PARAMETR_COMMAND( unsigned char *Command, unsigned char *Parametr)
+ACK_CODE PMTK_PARAMETR_COMMAND( uint8_t *Command, uint8_t *Parametr)
 {
     unsigned char CRC1,i;
     

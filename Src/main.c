@@ -85,6 +85,8 @@ static unsigned char smenaPPS=0;
 static uint8_t  B_ON=0;
 static   unsigned int time_4ms;
 static   unsigned char Ltime_4msl;
+static uint8_t PPS_OK =0;
+static uint8_t PPS_START=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -102,6 +104,7 @@ static void MX_NVIC_Init(void);
 void vmainPPSSet()
 {
 	ucPPScounter++;
+	PPS_START =1;
 	if (B_ON)
 	{
 	   ucPPScounter=PPSSycle<<1;
@@ -111,6 +114,7 @@ void vmainPPSSet()
 	{
 	   ucPPScounter=0;
 	   smenaPPS=1;
+	   PPS_OK=1;
     }
 }
 
@@ -119,6 +123,13 @@ void SetB_ON()
 	B_ON=1;
 
 }
+
+uint8_t GetPPS_OK()
+{
+ return PPS_OK;
+
+}
+
 void TimerInc()
 {
 
@@ -130,7 +141,7 @@ void StartDefaultTask(void const * argument)
 {
 	unsigned char _jarcostjB_mas[14]= {0,0,0,0,0,0,0,    B_br,B_br,B_br,B_br,B_br,B_br,B_br};   // REG_3
     uint8_t  step=0;
-    uint8_t ucRiseFall;
+    uint8_t ucRiseFall =RISE;
     uint8_t  Mig_ON_nOFF=1;
     B_ON=0;
     SetPWM3(W_br);
@@ -159,6 +170,8 @@ void StartDefaultTask(void const * argument)
 					ucRiseFall = RISE;
 					Ltime_4msl=0;
 					time_4ms=0;
+					if (!PPS_START) PPS_OK=0;
+					PPS_START=0;
 				}
 		}
 		else

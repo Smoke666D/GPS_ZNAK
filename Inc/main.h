@@ -78,10 +78,9 @@ void Error_Handler(void);
 /* USER CODE BEGIN EFP */
 #define VEdge            19
 #define VEdgel           17  
-void SetSmenaPPS();
-unsigned char GetTic_PPS();
 void SetB_ON();
 unsigned char GetB_ON();
+uint8_t GetPPS_OK();
 void StartDefaultTask(void const * argument);
 void vmainPPSSet();
 void TimerInc();

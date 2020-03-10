@@ -15,14 +15,14 @@ unsigned char NMEA_CRC(unsigned char * data, unsigned char count)
 }
   
 /* 
-Функция проверки контрольной суммы принятого пакета
-Проверяем первый символ, если это символ начала пакета, то ищем в пакете символ
-контрольной суммы '*', вычисляя при этом непосредственно саму контрольную сумму.
-После этого сравниваем получившийся результат с контрольной суммой из пакета
-В качетсве результата функция возвращает:
-0 - если CRC не совпал
-длинну пакета - если CRC совпадает.Длинна пакета ключает все символы, в том
-числе CRC
+пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ '*', пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ.
+пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:
+0 - пїЅпїЅпїЅпїЅ CRC пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅ CRC пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅпїЅ
+пїЅпїЅпїЅпїЅпїЅ CRC
 */
 unsigned char CHECK_CRC(unsigned char * data)
 {
@@ -50,22 +50,22 @@ unsigned char CHECK_CRC(unsigned char * data)
 static unsigned char MessageBuffer[100];
 //static unsigned char MessageCount;
 /*
-Функция плсимвольного разбора пактов NMEA, стандартные функции работы со строками не используються, 
-для ускорения работы и оптимизации кода, с учтем возможного применения функции на низкопроизводительных
-микропроцессора с минимлаьным объемом памяти
+пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ NMEA, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, 
+пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 */
 
 
 /*
-Функция конвертирующие число с плавующей точкой из NMEA строки. 
-*NMEAString - указатель на первый знак числа в строке
+пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ NMEA пїЅпїЅпїЅпїЅпїЅпїЅ. 
+*NMEAString - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 */
 float ConverNEMEAStringToFloat(unsigned char *NMEAString)
 {
   float FloatData=0.0;
   unsigned char t,i,point_position=0;
   
-  //Ищем точку в сообщении, что бы определить какой формат, может быть 0.00, 00.0, 0000
+  //пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ 0.00, 00.0, 0000
   for (i=0;i<MAX_FLOAT_SIZE;i++)
   {
     if (NMEAString[i]== '.') point_position=i;
@@ -84,7 +84,7 @@ float ConverNEMEAStringToFloat(unsigned char *NMEAString)
 }
 
 
-//Функция конвертации координаты GPS в градусы, для проведения дальнейшийх вычислений.
+//пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ GPS пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 double ConvertNEMEAStringToDegree(unsigned char * NEMEAString,COR_TYPE Lat_Long)
 {
 double  Degree,Minute, Second = 0;
@@ -151,7 +151,7 @@ RMC_PARCE_ERROR Parse_RMC_Command(unsigned char * Command,double * Lat,double * 
       gps_time->minute =(Command[9]-48)*10+(Command[10]-48);
       gps_time->second =(Command[11]-48)*10+(Command[12]-48);
       gps_time->milisecond = (Command[14]-48)*100+(Command[15]-48)*10+(Command[16]-48);
-   if (Command[RMC_STATUS] == 'A') // Проверяем валидность данных
+   if (Command[RMC_STATUS] == 'A') // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
    {
       *Lat =  ConvertNEMEAStringToDegree(&Command[RMC_LATITUDE],LATITUDE);
       *Long = ConvertNEMEAStringToDegree(&Command[RMC_LONGITUDE],LONGITUDE);
@@ -177,9 +177,9 @@ RMC_PARCE_ERROR Parse_RMC_Command(unsigned char * Command,double * Lat,double * 
 GSA_PARCE_ERROR Parse_GSA_Command(unsigned char * Command,float * PDOP,float * HDOP, float * VDOP )
 {
     
-   if (Command[GSA_STATUS] == '3') // Проверяем валидность данных
+   if (Command[GSA_STATUS] == '3') // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
    {
-      //Считываем данные DOP, для обработки передаем указатель на первый PRN в NMEA строке
+      //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ DOP, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ PRN пїЅ NMEA пїЅпїЅпїЅпїЅпїЅпїЅ
       *PDOP =   GetNEMEA_DOP(Command,NMEA_PDOP);
       *HDOP =   GetNEMEA_DOP(Command,NMEA_HDOP);
       *VDOP =   GetNEMEA_DOP(Command,NMEA_VDOP);
@@ -191,6 +191,37 @@ GSA_PARCE_ERROR Parse_GSA_Command(unsigned char * Command,float * PDOP,float * H
   else
     return RES_GLONASS;
 }
+
+//$$$GNGGA,235955.800,,,,,0,0,,,M,,M,,*53\r\n",
+GGA_PARCE_ERROR Parce_GGA_Command(uint8_t * Command,GPS_TIME *gps_time)
+{
+  uint8_t i,counter =0;
+  GGA_PARCE_ERROR ErrorCode=NOT_DEFINE_CODE;
+  gps_time->hour = (Command[7]-48)*10+(Command[8]-48);
+  gps_time->minute =(Command[9]-48)*10+(Command[10]-48);
+  gps_time->second =(Command[11]-48)*10+(Command[12]-48);
+  gps_time->milisecond = (Command[14]-48)*100+(Command[15]-48)*10+(Command[16]-48);
+  for (i=0;i<0xFF;i++)
+  {
+	  if (Command[i]==',')
+		 counter++;
+	  if (counter>=5)
+	  {
+		switch(Command[i+1]-48)
+		{
+			  case 0:ErrorCode=NO_VALID_FIX;break;
+			  case 1:ErrorCode=GPS_FIX;break;
+			  case 2:ErrorCode=DIFF_GPS_FIX;break;
+			  case 3:ErrorCode=PPS_FIX;break;
+			  case 4:ErrorCode=RTK_INT_FIX;break;
+			  case 5:ErrorCode=RTK_FLOAT_FIX;break;
+		}
+		break;
+	  }
+  }
+  return ErrorCode;
+}
+
 
 static unsigned char NMEA_MESSAGE_READY = 0;
 unsigned char NMEA_READY()
@@ -240,11 +271,6 @@ unsigned char GetNMEAMessage(unsigned char * buffer)
           buffer[DataCount] = DATA;      
           DataCount++;          
         }
-        else
-        {
-          
-        }
-        
       }
       else
       {
@@ -254,8 +280,8 @@ unsigned char GetNMEAMessage(unsigned char * buffer)
         {
         //*count = MessageCount;
            buffer = &MessageBuffer[i-DataCount];
-            NMEA_MESSAGE_READY--;      
-            return 1;
+           NMEA_MESSAGE_READY--;
+           return 1;
         }
       }
      }

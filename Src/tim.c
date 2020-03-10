@@ -58,7 +58,7 @@ void SetPWM3(unsigned int pulse)
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0,GPIO_PIN_SET);
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
 	 if (pulse>100)
-		 pulse==100;
+		 pulse=100;
 	  sConfigOC.Pulse = pulse*10;
 	  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
 	  sConfigOC.OCFastMode = TIM_OCFAST_ENABLE;
@@ -75,7 +75,7 @@ void SetPWM4(unsigned int pulse)
 	//TIM_OC_InitTypeDef sConfigOC = {0};
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
 	 if (pulse>100)
-			 pulse==100;
+			 pulse=100;
     sConfigOC.Pulse = pulse*10;
 	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
 	sConfigOC.OCFastMode = TIM_OCFAST_ENABLE;
