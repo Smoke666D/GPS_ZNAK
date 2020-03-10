@@ -59,7 +59,7 @@ void SetPWM3(unsigned int pulse)
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
 	 if (pulse>100)
 		 pulse==100;
-	  sConfigOC.Pulse = pulse*100;
+	  sConfigOC.Pulse = pulse*10;
 	  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
 	  sConfigOC.OCFastMode = TIM_OCFAST_ENABLE;
 	  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
@@ -76,8 +76,7 @@ void SetPWM4(unsigned int pulse)
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
 	 if (pulse>100)
 			 pulse==100;
-		  sConfigOC.Pulse = pulse*100;
-	sConfigOC.Pulse = pulse;
+    sConfigOC.Pulse = pulse*10;
 	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
 	sConfigOC.OCFastMode = TIM_OCFAST_ENABLE;
 	HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
@@ -144,8 +143,8 @@ void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 48;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 10000;
-  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.Period = 1000;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV2;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
   {

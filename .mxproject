@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=C:/Users/45/Desktop/znak_gps_up/Inc
+HeaderPath=C:/Users/dymov/Desktop/SOFTWARE/ZNAK_GPS_UP/Inc
 HeaderFiles=gpio.h;adc.h;dac.h;i2c.h;tim.h;usart.h;stm32f0xx_it.h;stm32f0xx_hal_conf.h;main.h;wwdg.h;iwdg.h;FreeRTOSConfig.h;
-SourcePath=C:/Users/45/Desktop/znak_gps_up/Src
+SourcePath=C:/Users/dymov/Desktop/SOFTWARE/ZNAK_GPS_UP/Src
 SourceFiles=gpio.c;adc.c;dac.c;i2c.c;tim.c;usart.c;stm32f0xx_it.c;stm32f0xx_hal_msp.c;main.c;wwdg.c;iwdg.c;freertos.c;stm32f0xx_hal_timebase_tim.c;
 
 [PreviousLibFiles]

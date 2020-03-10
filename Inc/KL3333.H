@@ -18,6 +18,7 @@
 #define NMEA_PPS_CONFGI		"1,200"
 #define NMEA_GPS_GLOANSS   "1,1,0,0,0"
 #define NMEA_OUTPUT_RMC_ONE_FIX_POSITION "0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+#define NMEA_OUTPUT_GGA_ONE_FIX_POSITION "0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
 #define NMEA_OUTPUT_RMC_GSA_ONE_FIX_POSITION "0,1,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0"                                        
 
 #define RESET_GPS_ON HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET)

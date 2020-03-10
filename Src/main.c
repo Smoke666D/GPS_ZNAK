@@ -59,7 +59,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
- #define B_br  68 //60
+ #define B_br  33 //60
  #define B_br0  0
  #define W_br  33 //60
  #define W_br0 33 //15
@@ -230,6 +230,7 @@ int main(void)
  
   /* Start scheduler */
   osKernelStart();
+ 
   /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
