@@ -59,10 +59,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
- #define B_br  33 //60
+ #define B_br  28 //60
  #define B_br0  0
- #define W_br  33 //60
- #define W_br0 33 //15
+ #define W_br  28 //60
+ #define W_br0 28 //15
  #define   PPSSycle    2
  #define   Temp_T2     (unsigned int)120*PPSSycle
  #define   Temp_T1     (unsigned int)25*PPSSycle

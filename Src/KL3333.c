@@ -85,15 +85,16 @@ void GPS_Task(void const * argument)
 			break;
 		case GET_DATA_STATE:
 			if (GetNMEAMessage(message_buffer) && GetPPS_OK())
-			   if (!CHECK_CRC(message_buffer)  &&  (message_buffer[3]=='G') && (message_buffer[4]=='G') && (message_buffer[3]=='A')  )
+			   if (!CHECK_CRC(message_buffer)  &&  (message_buffer[3]=='G')   )
 			   {
-			             /*if (Parse_RMC_Command(message_buffer,&CurLat,&CurLong,&GroundSpeed,&system_time) == VALID)
-			             {
-			                 if (system_time.second ==0)	 SetB_ON();
-			             }*/
+
 			             if (Parce_GGA_Command(message_buffer,&system_time)!=NO_VALID_FIX)
 			             {
-			            	 if (system_time.second ==0) SetB_ON();
+			            	 if (system_time.second ==0)
+			            	 {
+			            		 osDelay(100);
+			            		 SetB_ON();
+			            	 }
 			             }
 			   }
 			break;
