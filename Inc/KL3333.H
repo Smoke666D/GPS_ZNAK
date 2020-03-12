@@ -15,7 +15,7 @@
 #define PMTK_SET_SYNC_PPS_NMEA   "$PMTK255"
 #define PMTK_API_SET_GNSS_SEARCH_MODE (uint8_t *)"$PMTK353"
 
-#define NMEA_PPS_CONFGI		(uint8_t *)"1,300"
+#define NMEA_PPS_CONFGI		(uint8_t *)"1,310"
 #define NMEA_GPS_GLOANSS    (uint8_t *)"1,1,0,0,0"
 #define NMEA_OUTPUT_RMC_ONE_FIX_POSITION "0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
 #define NMEA_OUTPUT_GGA_ONE_FIX_POSITION (uint8_t *)("0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
