@@ -56,7 +56,7 @@ void GPS_Task(void const * argument)
 			osDelay(1000);
 			RESET_GPS_OFF;
 			ClearRXBuffer();
-			GPS_FSM = INIT_RATE_STATE;
+			GPS_FSM = INIT_OUT_STATE;
 			break;
 		case INIT_RATE_STATE:
 			if (GetNMEAMessage(message_buffer))
@@ -64,26 +64,31 @@ void GPS_Task(void const * argument)
 				ClearRXBuffer();
 			    if ((message_buffer[0] == '$') && (message_buffer[1]=='G') )
 			    {
-				   PMTK_PARAMETR_COMMAND(PMTK_SET_NMEA_BAUDRATE,(uint8_t *)"115200");
-				   GPS_FSM = INIT_OUT_STATE;
+			       PMTK_PARAMETR_COMMAND(PMTK_SET_NMEA_BAUDRATE,(uint8_t *)"115200");
+				   USART1_115200_ReInit();
+				   osDelay(1000);
+				   ClearRXBuffer();
+				   GPS_FSM = GET_DATA_STATE;
+
 				}
 			}
 			break;
 		case INIT_OUT_STATE:
 			if (GetNMEAMessage(message_buffer))
-			{
-				ClearRXBuffer();
+			{				ClearRXBuffer();
+
 			    if ((message_buffer[0] == '$') && (message_buffer[1]=='G') )
 			    {
 			    	PMTK_PARAMETR_COMMAND(PMTK_DT_NMEA_OUTPUT,NMEA_OUTPUT_GGA_ONE_FIX_POSITION );
-			    	PMTK_PARAMETR_COMMAND(PMTK_SET_PPS_CONFIG_CMD, NMEA_PPS_CONFGI);
-			    	PMTK_PARAMETR_COMMAND( PMTK_API_SET_GNSS_SEARCH_MODE,NMEA_GPS_GLOANSS);
-				    GPS_FSM = GET_DATA_STATE;
-				    ClearRXBuffer();
+			    				    	PMTK_PARAMETR_COMMAND(PMTK_SET_PPS_CONFIG_CMD, NMEA_PPS_CONFGI);
+			    				    	PMTK_PARAMETR_COMMAND( PMTK_API_SET_GNSS_SEARCH_MODE,NMEA_GPS_GLOANSS);
+			    				    	GPS_FSM = INIT_RATE_STATE;
+			    					    ClearRXBuffer();
 			    }
 			}
 			break;
 		case GET_DATA_STATE:
+
 			if (GetNMEAMessage(message_buffer) && GetPPS_OK())
 			   if (!CHECK_CRC(message_buffer)  &&  (message_buffer[3]=='G')   )
 			   {
