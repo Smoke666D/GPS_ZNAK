@@ -39,7 +39,7 @@
 
 #ifdef __cplusplus
  extern "C" {
-#endif 
+#endif
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -65,6 +65,7 @@
 void NMI_Handler(void);
 void HardFault_Handler(void);
 void EXTI2_3_IRQHandler(void);
+void DMA1_Channel1_IRQHandler(void);
 void TIM1_BRK_UP_TRG_COM_IRQHandler(void);
 void TIM2_IRQHandler(void);
 void TIM3_IRQHandler(void);

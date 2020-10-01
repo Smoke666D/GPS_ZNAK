@@ -3,10 +3,10 @@
   <FileVersion>3.0</FileVersion>
   <Workspace>
     <WorkspaceType>Single-project</WorkspaceType>
-    <WorkspacePath>C:\Users\dymov\Desktop\SOFTWARE\ZNAK_GPS_UP\</WorkspacePath>
+    <WorkspacePath>C:\Users\45\Documents\znak_gps_up\</WorkspacePath>
     <underRoot>true</underRoot>
     <TrustZone>0</TrustZone>
-    <HAL_Driver>C:\Users\dymov\STM32Cube\Repository\STM32Cube_FW_F0_V1.11.0</HAL_Driver>
+    <HAL_Driver>C:\Users\45\STM32Cube\Repository\STM32Cube_FW_F0_V1.11.0</HAL_Driver>
     <CMSIS>Drivers/CMSIS</CMSIS>
     <Toolchain>STM32CubeIDE</Toolchain>
     <IocFile>ZNAK_GPS_UP.ioc</IocFile>
@@ -25,12 +25,12 @@
           <sourceStructure>Basic</sourceStructure>
           <device>STM32F051K8Ux</device>
           <cpucore>Arm Cortex-M0</cpucore>
-          <fpu>none</fpu>
+          <fpu>None</fpu>
           <memories>
             <memory access="xrw" name="RAM" size="8" start="0x20000000"/>
             <memory access="rx" name="FLASH" size="64" start="0x8000000"/>
           </memories>
-          <startup>C:\Users\dymov\STM32Cube\Repository\STM32Cube_FW_F0_V1.11.0\Drivers\CMSIS\Device\ST\STM32F0xx\Source\Templates\gcc\startup_stm32f051x8.s</startup>
+          <startup>C:\Users\45\STM32Cube\Repository\STM32Cube_FW_F0_V1.11.0\Drivers\CMSIS\Device\ST\STM32F0xx\Source\Templates\gcc\startup_stm32f051x8.s</startup>
           <LinkSettings>
             <LinkAdditionalLibs/>
           </LinkSettings>

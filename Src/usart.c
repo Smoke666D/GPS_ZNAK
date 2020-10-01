@@ -25,6 +25,7 @@
 #include "main.h"
 volatile char sim;
 volatile char sim2;
+static uint8_t uTerminalMode = GPS_ECHO;
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
@@ -87,11 +88,11 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
   /* USER CODE END USART1_MspInit 0 */
     /* USART1 clock enable */
     __HAL_RCC_USART1_CLK_ENABLE();
-  
+
     __HAL_RCC_GPIOA_CLK_ENABLE();
-    /**USART1 GPIO Configuration    
+    /**USART1 GPIO Configuration
     PA9     ------> USART1_TX
-    PA10     ------> USART1_RX 
+    PA10     ------> USART1_RX
     */
     GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_10;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -115,11 +116,11 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
   /* USER CODE END USART2_MspInit 0 */
     /* USART2 clock enable */
     __HAL_RCC_USART2_CLK_ENABLE();
-  
+
     __HAL_RCC_GPIOA_CLK_ENABLE();
-    /**USART2 GPIO Configuration    
+    /**USART2 GPIO Configuration
     PA2     ------> USART2_TX
-    PA3     ------> USART2_RX 
+    PA3     ------> USART2_RX
     */
     GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -147,10 +148,10 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
   /* USER CODE END USART1_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_USART1_CLK_DISABLE();
-  
-    /**USART1 GPIO Configuration    
+
+    /**USART1 GPIO Configuration
     PA9     ------> USART1_TX
-    PA10     ------> USART1_RX 
+    PA10     ------> USART1_RX
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_9|GPIO_PIN_10);
 
@@ -167,10 +168,10 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
   /* USER CODE END USART2_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_USART2_CLK_DISABLE();
-  
-    /**USART2 GPIO Configuration    
+
+    /**USART2 GPIO Configuration
     PA2     ------> USART2_TX
-    PA3     ------> USART2_RX 
+    PA3     ------> USART2_RX
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2|GPIO_PIN_3);
 
@@ -180,19 +181,20 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
   /* USER CODE END USART2_MspDeInit 1 */
   }
-} 
+}
 
 /* USER CODE BEGIN 1 */
 // USART Receiver buffer
 #define RX_BUFFER_SIZE 300
-static  uint8_t rx_buffer[RX_BUFFER_SIZE];
+static  uint8_t __packed rx_buffer[RX_BUFFER_SIZE];
 
 static uint16_t rx_wr_index=0,rx_rd_index=0;
 static uint16_t rx_counter=0;
 
 #define TX_BUFFER_SIZE 100
-static  uint8_t tx_buffer[TX_BUFFER_SIZE];
+static  uint8_t __packed tx_buffer[TX_BUFFER_SIZE];
 
+static uint8_t  TF =0;
 static uint16_t tx_wr_index=0,tx_rd_index=0;
 static uint16_t tx_counter=0;
 
@@ -257,23 +259,40 @@ return 0;
 }
 
 
+void vIntToStr(char * source, uint8_t data)
+{
+	uint8_t temp =data,scale =100;
+	for (uint8_t i=0;i<3;i++)
+	{
+		source[i]='0'+temp/scale;
+		temp = temp%scale;
+		scale =scale/10;
+	}
+	source[3]=CR_SYMBOL;
+	source[4]=0;
+}
 
+static uint8_t DATA[COMMAND_BUFFER_SIZE];
+static uint8_t uDataCounter =0;
+static char Buffer[20];
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-
+   uint8_t temp =0,scale=1;
   if (huart->Instance== USART1)
   {	
 		rx_counter++;
 		rx_buffer[rx_wr_index]=sim;
-		if (tx_counter)
+		if (GPS_ECHO)
 		{
-			tx_counter++;
-			tx_buffer[tx_wr_index]=sim;
-			if (++tx_wr_index == TX_BUFFER_SIZE) tx_wr_index=0;
+			if (tx_counter)
+			{
+				tx_counter++;
+				tx_buffer[tx_wr_index]=sim;
+				if (++tx_wr_index == TX_BUFFER_SIZE) tx_wr_index=0;
+			}
+			else
+				HAL_UART_Transmit_IT(&huart2, (uint8_t*)&sim,1);
 		}
-		else
-			HAL_UART_Transmit_IT(&huart2, (uint8_t*)&sim,1);
-
 		NMEA_CHECK(rx_buffer[rx_wr_index]);     //put_char1(rx_buffer[rx_wr_index]);
 		if (++rx_wr_index == RX_BUFFER_SIZE) rx_wr_index=0;
 
@@ -284,13 +303,93 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   if (huart->Instance== USART2)
    {
 
- 		HAL_UART_Transmit_IT(&huart2, (uint8_t*)&sim2,1);
- 		HAL_UART_Receive_IT(&huart2, (uint8_t*)&sim2, 1);
+	  switch (uTerminalMode)
+	  {
+	  	  	  case GPS_ECHO:
+	  	  		if ( sim2 == 't' || sim2=='T') uTerminalMode = COMMAND_TERMINAL;
+	  	  		break;
+	  	  	  case COMMAND_TERMINAL:
+	  	  		switch (sim2)
+	  	  		{
+	  	  			case 'q':
+	  	  			case 'Q':
+	  	  			    uTerminalMode = GPS_ECHO;
+	  	  			    break;
+	  	  			case '+':
+	  	  		        temp = GetPWM3();
+	  	  		        if (temp<100) temp++;
+	  	  		        SetPWM3(temp);
+	  	  		        vIntToStr(&Buffer,temp);
+	  	  		        HAL_UART_Transmit_IT(&huart2,&Buffer,4);
+	  	  				break;
+	  	  			case '-':
+	  	  				temp = GetPWM3();
+	  	  				if (temp>0) temp--;
+	  	  				SetPWM3(temp);
+	  	  			    vIntToStr(&Buffer,temp);
+	  	  				HAL_UART_Transmit_IT(&huart2,&Buffer,4);
+	  	  				break;
+	  	  			case '0':
+	  	  			case '1':
+	  	  			case '2':
+	  	  			case '3':
+	  	  			case '4':
+	  	  			case '5':
+	  	  			case '6':
+	  	  			case '7':
+	  	  		    case '8':
+	  	  		    case '9':
+	  	  		    	DATA[uDataCounter] = sim2;
+	  	  		    	uDataCounter++;
+	  	  		    	if (uDataCounter>COMMAND_BUFFER_SIZE)
+	  	  		    	{
+	  	  		    	  	uDataCounter=COMMAND_BUFFER_SIZE;
+	  	  		    	}
+	  	  		    	break;
+	  	  			case 13:
+	  	  				if ((uDataCounter>1) && (uDataCounter<3))
+						{
+	  	  					temp =0;
+	  	  					for (uint8_t i=uDataCounter;i>0;i--)
+	  	  					{
+	  	  					  temp= temp + DATA[i]*scale;
+	  	  					  scale = scale*10;
+	  	  					}
+	  	  					if (temp>100)
+	  	  					{
+	  	  						temp =100;
+	  	  						HAL_UART_Transmit_IT(&huart2,"100%",3);
+	  	  					}
+	  	  					SetPWM3(temp);
+	  	  					uDataCounter=0;
+	  	  					break;
+						}
+	  	  				HAL_UART_Transmit_IT(&huart2,"ERROR",5);
+	  	  				uDataCounter=0;
+	  	  				break;
+	  	  			default:
+
+	  	  				break;
+
+
+	  	  		}
+	  	  		break;
+	  	  	 default:
+			   break;
+
+
+	  }
+	  HAL_UART_Transmit_IT(&huart2, (uint8_t*)&sim2,1);
+	  HAL_UART_Receive_IT(&huart2, (uint8_t*)&sim2, 1);
+
 
 
    }
 
 }
+
+
+
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
     

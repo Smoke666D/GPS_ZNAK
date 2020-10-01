@@ -9,8 +9,11 @@ S_SRCS += \
 OBJS += \
 ./startup/startup_stm32f051x8.o 
 
+S_DEPS += \
+./startup/startup_stm32f051x8.d 
+
 
 # Each subdirectory must supply rules for building sources it contributes
-startup/%.o: ../startup/%.s
-	arm-none-eabi-gcc -mcpu=cortex-m0 -g3 -c -x assembler-with-cpp --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@" "$<"
+startup/startup_stm32f051x8.o: ../startup/startup_stm32f051x8.s
+	arm-none-eabi-gcc -mcpu=cortex-m0 -g3 -c -x assembler-with-cpp -MMD -MP -MF"startup/startup_stm32f051x8.d" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@" "$<"
 
