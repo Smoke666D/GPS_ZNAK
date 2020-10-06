@@ -74,7 +74,7 @@ void MX_USART2_UART_Init(void)
   {
     Error_Handler();
   }
-
+  HAL_UART_Receive_IT(&huart2, (uint8_t*)&sim2, 1);
 }
 
 void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
@@ -282,7 +282,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   {	
 		rx_counter++;
 		rx_buffer[rx_wr_index]=sim;
-		if (GPS_ECHO)
+		if (uTerminalMode==GPS_ECHO)
 		{
 			if (tx_counter)
 			{
@@ -352,13 +352,20 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	  	  					temp =0;
 	  	  					for (uint8_t i=uDataCounter;i>0;i--)
 	  	  					{
-	  	  					  temp= temp + DATA[i]*scale;
+	  	  					  temp= temp + (DATA[i-1]-'0')*scale;
 	  	  					  scale = scale*10;
 	  	  					}
 	  	  					if (temp>100)
 	  	  					{
+	  	  					    vIntToStr(&Buffer,temp);
+	  	  					    HAL_UART_Transmit_IT(&huart2,&Buffer,4);
 	  	  						temp =100;
 	  	  						HAL_UART_Transmit_IT(&huart2,"100%",3);
+	  	  					}
+	  	  					else
+	  	  					{
+	  	  					   vIntToStr(&Buffer,temp);
+	  	  					   HAL_UART_Transmit_IT(&huart2,&Buffer,4);
 	  	  					}
 	  	  					SetPWM3(temp);
 	  	  					uDataCounter=0;
